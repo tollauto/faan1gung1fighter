@@ -96,10 +96,10 @@ const sfx={
 
 /* ---------- 角色名單 ---------- */
 const ROSTER=[
- { id:'kmb',   name:'KMB BOY', cname:'巴士仔', speed:88,
+ { id:'kmb',   name:'BUS BOY', cname:'巴仔', speed:88,
    spName:'旋風手', taunt:'再嘈車都唔撚開！！！' },
- { id:'tchai', name:'T-CHAI',  cname:'鐵仔',   speed:82,
-   spName:'波動拳', taunt:'我哋話畀你聽OK就OK！！！' }
+ { id:'tchai', name:'T-LO CHAI', cname:'鐵路仔', speed:82,
+   spName:'波動拳', taunt:'我嘅訴求就係想返工！！！' }
 ];
 
 /* ---------- 角色繪畫（全部原創 pixel art） ---------- */
@@ -172,10 +172,12 @@ function drawKMB(o){
   if(o.state==='punch'){ const L=5+19*ext; rect(8,-28,L,5,RED); disc(8+L,-25.5,3.5,DK); }
   else if(o.state==='block'){ rect(5,-31,5,15,RED); rect(10,-27,4,10,DK); }
   else if(o.state==='special'){
-    const a=o.t*22;
-    for(let k=0;k<4;k++){ const an=a+k*Math.PI/2; disc(Math.cos(an)*15,-25+Math.sin(an)*7,3.5,(k%2)?DK:RED); }
-    g.globalAlpha=.75;
-    for(let k=0;k<8;k++){ const an=now*9+k*Math.PI/4; disc(Math.cos(an)*20,-24+Math.sin(an)*11,2,'#bfe9ff'); }
+    const a=o.t*24;
+    for(let k=0;k<4;k++){ const an=a+k*Math.PI/2; disc(Math.cos(an)*17,-25+Math.sin(an)*8,4,(k%2)?DK:RED); }
+    g.globalAlpha=.8;
+    for(let k=0;k<10;k++){ const an=now*10+k*Math.PI/5; const rr=16+((k*13)%12); disc(Math.cos(an)*rr,-18-((k*9)%26)+Math.sin(an)*5,2.5,'#bfe9ff'); }
+    g.globalAlpha=.45;
+    for(let k=0;k<3;k++) rect(-32-k*7,-36+k*10,15,2,'#dff4ff');
     g.globalAlpha=1;
   }
   else if(o.state==='win'){ rect(9,-45,5,17,RED); disc(11.5,-47,3.5,DK); }
@@ -192,7 +194,7 @@ function drawKMB(o){
 }
 
 function drawTC(o){
-  const BODY=o.alt?'#bfe3f2':'#f2f4f7', SH=o.alt?'#8fc1d8':'#c7ced6', NAVY='#1d2a52', RED='#e0231e', GREY='#8f97a3', INK='#10182c';
+  const BODY=o.alt?'#bfe3f2':'#f2f4f7', SH=o.alt?'#8fc1d8':'#c7ced6', RIB=o.alt?'#a9d4e8':'#e4e8ed', NAVY='#1d2a52', RED='#e0231e', GREY='#8f97a3', INK='#10182c';
   const blink=((now+o.x*.017)%3.1)<.12;
   if(o.state==='ko'){
     rect(-12,-15,26,12,BODY); disc(-12,-9,8,BODY); disc(14,-10,7,BODY);
@@ -203,22 +205,21 @@ function drawTC(o){
     const a=now*5; for(let k=0;k<3;k++){ const an=a+k*2.1; disc(2+Math.cos(an)*15,-23+Math.sin(an)*4,1.5,'#9ad4ff'); }
     return;
   }
-  const bob=(o.state==='idle')?Math.round(Math.sin(o.t*5+1)):0;
+  const bob=(o.state==='idle')?Math.round(Math.sin(o.t*5+1)):((o.state==='walk')?Math.round(Math.sin(o.t*14)*1.5):0);
   let oy=bob;
   if(o.state==='block') oy+=4;
   if(o.state==='win') oy-=Math.round(Math.abs(Math.sin(o.t*7))*5);
   g.translate(0,oy);
   const ext=Math.sin(Math.PI*atkP(o));
-  // 腳
-  if(o.state==='jump'){ rect(-8,-8,5,5,NAVY); rect(3,-8,5,5,NAVY); }
-  else if(o.state==='kick'){ rect(-8,-6,6,6,NAVY); const L=6+15*ext; rect(3,-11,L,5,NAVY); }
-  else { const lo=(o.state==='walk')?Math.sin(o.t*12)*2:0; rect(-8-lo,-6,6,6,NAVY); rect(2+lo,-6,6,6,NAVY); }
-  // 車仔身
-  rect(-14,-34,28,25,BODY);
+  // 正常狀態冇腳（成嚿坐喺地），出腳先彈隻腳出嚟
+  if(o.state==='kick'){ const L=8+15*ext; rect(2,-9,L,5,NAVY); disc(2+L,-6.5,3,NAVY); }
+  // 車仔身（直落到地＋坑紋）
+  rect(-14,-34,28,30,BODY);
   disc(0,-34,14,BODY);
-  rect(-14,-34,3,21,SH);
-  rect(-14,-13,28,4,GREY);
-  rect(-14,-17,28,3,RED);
+  rect(-14,-34,3,26,SH);
+  for(let ry=-30;ry<=-13;ry+=4) rect(-11,ry,24,1,RIB);
+  rect(-14,-9,28,3,RED);
+  rect(-14,-4,28,4,GREY);
   // 後手
   if(o.state!=='special') rect(-17,-27,4,9,SH);
   // 前手
@@ -226,7 +227,7 @@ function drawTC(o){
   else if(o.state==='block'){ rect(7,-31,5,13,BODY); rect(11,-27,4,9,SH); }
   else if(o.state==='special'){
     rect(9,-29,12,4,BODY); rect(9,-24,12,4,BODY);
-    const r=4+2*Math.sin(o.t*26);
+    const r=6+3*Math.sin(o.t*26);
     g.globalAlpha=.85; disc(25,-26,r,'#bfe9ff'); g.globalAlpha=1;
   }
   else if(o.state==='win'){ rect(14,-46,4,16,BODY); rect(14,-46,4,3,SH); rect(-18,-46,4,16,SH); }
@@ -240,40 +241,49 @@ function drawTC(o){
   if(o.state==='hit') disc(0,-22,2,GREY);
 }
 
-/* ---------- 必殺技橫額（按需求：人物上方彈出樣＋對白） ---------- */
+/* ---------- 必殺技橫額（大字版：闊度可達 2/3 畫面） ---------- */
 function drawBanner(b){
   const f=b.f, age=1.7-b.t;
-  const x=clamp(f.x,86,CW-86);
-  const y=Math.max(28, f.y-92-Math.min(12,age*30));
+  const pop=Math.min(1,age*5);
   const c=ROSTER[f.ci];
+  const cx=CW/2, ty=54, gy=96;
+  const ts=Math.max(2,Math.round(21*pop));
+  g.globalAlpha=.45*pop; rect(0,ty-14,CW,28,'#000018'); g.globalAlpha=1;
   if(c.id==='kmb'){
-    // 嬲嬲面＋「暫停服務」牌
-    disc(x-34,y+10,8,'#e0231e');
-    disc(x-37,y+9,2.2,'#ffffff'); disc(x-31,y+9,2.2,'#ffffff');
-    disc(x-36.5,y+9,1,'#23110d'); disc(x-30.5,y+9,1,'#23110d');
-    rect(x-40,y+5,5,2,'#7a0c0c'); rect(x-34,y+5,5,2,'#7a0c0c');
-    rect(x-36,y+15,5,2,'#23110d');
-    rect(x-22,y+1,56,19,'#23110d'); rect(x-20,y+3,52,15,'#f5f1e6');
-    text('暫停服務',x+6,y+8,9,'#23110d','center',F_CJK,'900');
-    text('NOT IN SERVICE',x+6,y+15,4,'#5a5142','center',F_PIX);
-    textO(c.taunt,x,y-9,9,'#ffd23a','#1a0a06','center',F_CJK,'900');
+    textO(c.taunt,cx,ty,ts,'#ffd23a','#1a0a06','center',F_CJK,'900',2);
+    if(pop>.6){
+      // 嬲嬲面（大）
+      disc(cx-82,gy,14,'#e0231e');
+      disc(cx-88,gy-2,4,'#ffffff'); disc(cx-76,gy-2,4,'#ffffff');
+      disc(cx-87,gy-2,2,'#23110d'); disc(cx-75,gy-2,2,'#23110d');
+      rect(cx-93,gy-9,8,3,'#7a0c0c'); rect(cx-83,gy-9,8,3,'#7a0c0c');
+      rect(cx-86,gy+7,9,3,'#23110d');
+      // 「暫停服務」大牌
+      rect(cx-60,gy-16,124,33,'#23110d'); rect(cx-57,gy-13,118,27,'#f5f1e6');
+      text('暫停服務',cx+2,gy-4,16,'#23110d','center',F_CJK,'900');
+      text('NOT IN SERVICE',cx+2,gy+9,6,'#5a5142','center',F_PIX);
+    }
   } else {
-    // 戴眼鏡管理層 pixel 面（原創通用樣）＋「OK!」泡
-    disc(x-32,y+10,9,'#1d2a52');
-    disc(x-36,y+9,3.2,'#ffffff'); disc(x-28,y+9,3.2,'#ffffff');
-    disc(x-36,y+9,1.8,'#1d2a52'); disc(x-28,y+9,1.8,'#1d2a52');
-    rect(x-33,y+8,2,1,'#ffffff');
-    rect(x-36,y+15,8,2,'#ffffff');
-    rect(x-18,y+1,38,18,'#0a1430'); rect(x-16,y+3,34,14,'#ffffff');
-    text('OK!',x+1,y+10,8,'#e0231e','center',F_PIX);
-    textO(c.taunt,x,y-9,9,'#9ad4ff','#06122e','center',F_CJK,'900');
+    textO(c.taunt,cx,ty,ts,'#9ad4ff','#06122e','center',F_CJK,'900',2);
+    if(pop>.6){
+      // 戴眼鏡管理層 pixel 面（大，原創通用樣）
+      disc(cx-72,gy,16,'#1d2a52');
+      disc(cx-79,gy-2,5,'#ffffff'); disc(cx-65,gy-2,5,'#ffffff');
+      disc(cx-79,gy-2,2.5,'#1d2a52'); disc(cx-65,gy-2,2.5,'#1d2a52');
+      rect(cx-74,gy-3,4,2,'#ffffff');
+      rect(cx-78,gy+9,13,3,'#ffffff');
+      // 「返工!」大泡
+      rect(cx-50,gy-15,106,31,'#0a1430'); rect(cx-47,gy-12,100,25,'#ffffff');
+      text('返工!',cx+3,gy+1,16,'#e0231e','center',F_CJK,'900');
+    }
   }
 }
 
 function drawProj(p){
-  g.globalAlpha=.35; disc(p.x-p.vx*.05,p.y,5,'#9ad4ff'); disc(p.x-p.vx*.09,p.y,3,'#9ad4ff'); g.globalAlpha=1;
-  disc(p.x,p.y,7,'#62b8f0'); disc(p.x,p.y,5,'#eaffff');
-  text('OK',p.x,p.y,5,'#0a5da0','center',F_PIX);
+  g.globalAlpha=.3; disc(p.x-p.vx*.06,p.y,7,'#9ad4ff'); disc(p.x-p.vx*.11,p.y,5,'#9ad4ff'); disc(p.x-p.vx*.16,p.y,3,'#9ad4ff'); g.globalAlpha=1;
+  const pul=1+.15*Math.sin(now*20);
+  disc(p.x,p.y,Math.round(9*pul),'#62b8f0'); disc(p.x,p.y,Math.round(7*pul),'#eaffff');
+  text('OK',p.x,p.y,6,'#0a5da0','center',F_PIX);
 }
 
 /* ---------- 背景（每場隨機一張，全部程式繪畫） ---------- */
@@ -282,7 +292,7 @@ function bgImg(i){
   if(!BGs[i]){
     const c=document.createElement('canvas'); c.width=CW; c.height=CH;
     const old=g; g=c.getContext('2d');
-    [bgTram,bgMTR,bgTM][i]();
+    [bgTram,bgMTR,bgTM,bgFH][i]();
     g=old; BGs[i]=c;
   }
   return BGs[i];
@@ -417,6 +427,58 @@ function bgTM(){
   for(let k=0;k<4;k++){ const x=140+k*26+R()*8; rect(x,128,4,12,'#5a6470'); disc(x+2,125,2.6,'#5a6470'); }
 }
 
+/* Bg4：炮台山站（綠色紙皮石牆＋電視台街訪場景；台徽一律用紅圈代替，全原創人物） */
+function bgFH(){
+  const R=prand(41);
+  rect(0,0,CW,CH,'#16261a');
+  rect(0,0,CW,30,'#101a12');
+  for(let x=18;x<CW;x+=56){ rect(x,22,30,4,'#ffe9c2'); g.globalAlpha=.22; rect(x-4,26,38,10,'#ffe9c2'); g.globalAlpha=1; }
+  // 綠色紙皮石牆
+  rect(0,30,CW,102,'#2e8f4e');
+  for(let k=0;k<280;k++){ rect(R()*CW,30+R()*100,2,2,(R()>.5)?'#247a3f':'#43a563'); }
+  // 兩邊綠柱
+  rect(0,30,16,102,'#247a3f'); rect(CW-16,30,16,102,'#247a3f');
+  for(let k=0;k<30;k++){ rect(R()*14,34+R()*94,2,2,'#1e6a36'); rect(CW-16+R()*14,34+R()*94,2,2,'#1e6a36'); }
+  // 站名白帶
+  rect(28,60,160,26,'#efe9df'); rect(28,60,160,2,'#d9d2c4');
+  text('炮台山',92,71,15,'#1c1c1c','center',F_CJK,'900');
+  text('FORTRESS HILL',92,81,5,'#6b665c','center',F_PIX);
+  rect(160,64,1,18,'#b9ae90');
+  // 電視台紅圈水印（唔用真台徽）
+  disc(36,44,6,'#d6231e'); disc(38,42,2,'#f06a60');
+  // 月台地面
+  rect(0,132,CW,CH-132,'#ccd2cc');
+  rect(0,132,CW,4,'#e0b32a');
+  for(let x=0;x<CW;x+=26) rect(x,138,1,CH-138,'#aeb6ae');
+  for(let y=152;y<CH;y+=18) rect(0,y,CW,1,'#aeb6ae');
+  // 圍觀人群（戴口罩、舉電話）
+  const cc=['#5a6470','#705a50','#4a5a48','#6a5070','#50607a','#7a6a50','#5f4a5a'];
+  for(let k=0;k<7;k++){
+    const x=200+k*25+R()*7, fy=148;
+    rect(x-4,fy-16,8,16,cc[k%cc.length]);
+    disc(x,fy-19,3.5,'#e0bd97');
+    rect(x-3,fy-23,7,3,'#241a12');
+    if(k%2===0) rect(x-2,fy-18,5,3,'#dfe8f0');
+    if(k%3===0) rect(x+4,fy-27,3,5,'#22262e');
+  }
+  // 受訪市民（藍西裝白恤衫眼鏡，原創通用樣）
+  const ix=296, iy=162;
+  rect(ix-6,iy-10,5,10,'#2a3140'); rect(ix+1,iy-10,5,10,'#2a3140');
+  rect(ix-9,iy-27,18,17,'#2e5fb8');
+  rect(ix-3,iy-27,6,11,'#f2f2f2');
+  rect(ix-12,iy-26,3,11,'#2e5fb8'); rect(ix+9,iy-26,3,11,'#2e5fb8');
+  disc(ix,iy-34,6,'#e8c39e');
+  rect(ix-6,iy-41,12,4,'#1c1410'); rect(ix-6,iy-38,2,3,'#1c1410'); rect(ix+4,iy-38,2,3,'#1c1410');
+  disc(ix-3,iy-34,2,'#ffffff'); disc(ix+3,iy-34,2,'#ffffff'); rect(ix-1,iy-34,2,1,'#1c1410');
+  rect(ix-2,iy-29,4,1,'#7a4a3a');
+  // 咪高峰（紅圈台徽牌）＋記者手
+  rect(ix+12,iy-31,28,3,'#3a3f48');
+  disc(ix+11,iy-31,3,'#22262e');
+  rect(ix+19,iy-28,12,9,'#1d2a52');
+  disc(ix+25,iy-23.5,3.5,'#d6231e');
+  rect(ix+36,iy-33,12,7,'#e8c39e');
+}
+
 /* ---------- 對戰核心 ---------- */
 const ATKS={ punch:{dur:.3, a0:.07,a1:.18, range:31, dmg:7,  knock:48, stun:.28},
              kick: {dur:.44,a0:.15,a1:.30, range:41, dmg:10, knock:85, stun:.36} };
@@ -429,7 +491,7 @@ function mkFighter(ci,side,ctrl){
     wins:0, alt:false, ai:{t:0,act:'approach'}, spNext:0, spHits:0, spSpawned:false };
 }
 function startFight(){
-  fight.bg=Math.floor(Math.random()*3);
+  fight.bg=Math.floor(Math.random()*4);
   fight.p=[ mkFighter(picks[0],1,'p1'), mkFighter(picks[1],-1, mode===1?'cpu':'p2') ];
   if(picks[0]===picks[1]) fight.p[1].alt=true;
   fight.round=1;
@@ -464,7 +526,7 @@ function triggerKO(li,byTime){
 }
 function canAct(f){ return f.state==='idle'||f.state==='walk'||f.state==='jump'; }
 function startAtk(f,kind){ const a=ATKS[kind]; f.state=kind; f.t=0; f.atk={dur:a.dur,a0:a.a0,a1:a.a1,range:a.range,dmg:a.dmg,knock:a.knock,stun:a.stun,hit:false}; sfx.swish(); }
-function startSpecial(f){ f.meter=0; f.state='special'; f.t=0; f.spHits=0; f.spNext=.18; f.spSpawned=false; fight.banners.push({f:f,t:1.7}); fight.shake=Math.max(fight.shake,.12); sfx.special(); }
+function startSpecial(f){ f.meter=0; f.state='special'; f.t=0; f.spHits=0; f.spNext=.18; f.spSpawned=false; fight.banners.length=0; fight.banners.push({f:f,t:1.7}); fight.shake=Math.max(fight.shake,.3); sfx.special(); }
 
 function p1Input(){ return { left:!!keys.KeyA, right:!!keys.KeyD, jump:take('KeyW'), down:!!keys.KeyS, punch:take('KeyJ'), kick:take('KeyK'), special:take('KeyL') }; }
 function p2Input(){ return { left:!!keys.ArrowLeft, right:!!keys.ArrowRight, jump:take('ArrowUp'), down:!!keys.ArrowDown, punch:take('Comma'), kick:take('Period'), special:take('Slash') }; }
@@ -606,6 +668,18 @@ function drawFight(){
   g.save();
   if(fight.shake>0) g.translate(Math.round((Math.random()*2-1)*fight.shake*7), Math.round((Math.random()*2-1)*fight.shake*5));
   g.drawImage(bgImg(fight.bg),0,0);
+  // 必殺爆氣演出：背景變暗＋擴散光環
+  let spF=null;
+  for(let i=0;i<2;i++) if(fight.p[i].state==='special') spF=fight.p[i];
+  if(spF){
+    g.globalAlpha=.4; rect(0,0,CW,CH,'#000018'); g.globalAlpha=1;
+    if(spF.t<.45){
+      const rr=18+spF.t*420;
+      g.globalAlpha=Math.max(0,.85-spF.t*1.9);
+      for(let k=0;k<26;k++){ const an=k/26*Math.PI*2; disc(spF.x+Math.cos(an)*rr, spF.y-26+Math.sin(an)*rr*.45, 2.5, '#fff8c0'); }
+      g.globalAlpha=1;
+    }
+  }
   for(let i=0;i<2;i++){ const f=fight.p[i]; g.globalAlpha=.22; ediscY(f.x,GROUND+3,(f.state==='ko')?17:12,3,'#101010'); g.globalAlpha=1; }
   drawChar(fight.p[1]); drawChar(fight.p[0]);
   for(let i=0;i<fight.projs.length;i++) drawProj(fight.projs[i]);
